@@ -194,7 +194,7 @@ featureMaxIndex = len(features)-1
 fuelTypeMaxIndex = len(fuelTypes)-1
 
 
-for i in range(10):
+for i in range(1):
 
     priceIdx = random.randint(0, priceMaxIndex)
     cvIdx = random.randint(0, contryVersionMaxIndex)
