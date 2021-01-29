@@ -13,19 +13,15 @@ def slugGenerator(data):
 for number in range(1992,2023):
   with open(f'{number}.csv') as csv_file:
       csv_reader = csv.reader(csv_file, delimiter=',')
-      line_count = 0  
-      line_count_two = 0
 
-      top_car = {}
-      top_car_viewers = {}
-      url_car = {}
+      make = {}
+      model = {}
 
       for row in csv_reader:
-          if top_car.get(row[2]) == None:
-              top_car[row[2]] = 1
-              url_car[row[2]] = row[18] 
+          if make.get(row[1]) == None:
+              make[row[1]] = 1
           else:
-              top_car[row[2]] +=1                         
+              make[row[1]] +=1                         
 
 # SECOND PART
 
@@ -92,18 +88,18 @@ models = client.execute(
 makes = client.execute(getMakes)["makes"]
 
 
-for i in range(1):
-    modelParams = {
+for key in make:
+    Params = {
         "data": {
-            "name": model,
-            "slug": slugGenerator(model),
+            "name": key,
+            "slug": slugGenerator(key),
             "visible": False,
         }
     }
 
-    modelResult = client.execute(
-        createModelMutation, variable_values=modelParams)
+    Result = client.execute(
+        createMakeMutation, variable_values=Params)
         
-    print(modelResult)
+    print(Result)
 
 print("OK")
