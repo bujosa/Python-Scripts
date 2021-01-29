@@ -1,38 +1,26 @@
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 from pprint import pprint
-import xlsxwriter
 import datetime
 import random
 import csv
 
-workbook = xlsxwriter.Workbook('output.xlsx')
-worksheet = workbook.add_worksheet()
+for number in range(1992,2022):
+  with open('${number}.csv') as csv_file:
+      csv_reader = csv.reader(csv_file, delimiter=',')
+      line_count = 0
+      line_count_two = 0
 
-with open('supercarrosdata_v2.csv') as csv_file:
-    csv_reader = csv.reader(csv_file, delimiter=',')
-    line_count = 0
-    line_count_two = 0
+      top_car = {}
+      top_car_viewers = {}
+      url_car = {}
 
-    top_car = {}
-    top_car_viewers = {}
-    url_car = {}
-
-    # first part "sacar top de vehiculos en base a cantidad de super carros"
-    for row in csv_reader:
-        if top_car.get(row[2]) == None:
-            top_car[row[2]] = 1
-            url_car[row[2]] = row[18] 
-        else:
-            top_car[row[2]] +=1                         
-
-    for key in top_car:   
-        worksheet.write(line_count,0, key)
-        worksheet.write(line_count,1, top_car[key])
-        worksheet.write(line_count,2,url_car[key] )
-        line_count+=1
-    
-    workbook.close()
+      for row in csv_reader:
+          if top_car.get(row[2]) == None:
+              top_car[row[2]] = 1
+              url_car[row[2]] = row[18] 
+          else:
+              top_car[row[2]] +=1                         
 
 # api_token = ""
 # headers = {"Authorization": "Bearer {token}".format(token=api_token)}
@@ -43,98 +31,10 @@ _transport = RequestsHTTPTransport(
     # headers=headers
 )
 
-
 client = Client(
     transport=_transport,
     fetch_schema_from_transport=True,
 )
-
-getPricesQuery = gql("""
-query{
-  getAllPrices{
-    id
-    basePrice
-    curboPrice
-    discount
-    protectionPlan
-    curboFee
-    licensePlate
-    transfer
-    tax{
-      id
-      name
-    }
-  }
-}
-""")
-
-getCountryVersions = gql("""
-query	{
-  getAllCountryVersions{
-    id
-    name
-    slug
-  }
-}
-""")
-
-getCategoriesQuery = gql("""
-query{
-  getAllCategories{
-    id
-    name
-    slug
-    icon
-  }
-}
-""")
-
-getDealersQuery = gql("""
-query{
-  getAllDealers{
-    id
-    name
-    slug
-    telephoneNumber
-    location{
-      id
-    }
-    workingHours
-    type
-  }
-}
-""")
-
-getColors = gql("""
-query{
-  getAllColors{
-    id
-    name
-    slug
-  }
-}
-""")
-
-getBodyStyles = gql("""
-query{
-  getAllBodyStyles{
-    id
-    name
-    slug
-    icon
-  }
-}
-""")
-
-getDriveTrains = gql("""
-query{
-  getAllDriveTrains{
-    id
-    name
-    slug
-  }
-}
-""")
 
 getModels = gql("""
 query{
@@ -151,27 +51,7 @@ query{
 }
 """)
 
-getFeatures = gql("""
-query{
-  getAllFeatures{
-    id
-    name
-    slug
-  }
-}
-""")
-
-getFuelTypes = gql("""
-query{
-  getAllFuelTypes{
-    id
-    name
-    slug
-  }
-}
-""")
-
-createCarMutation = gql("""
+createModelMutation = gql("""
 mutation($data:CreateCarInput!){
   createCar(input:$data){
     id
@@ -179,48 +59,8 @@ mutation($data:CreateCarInput!){
 }
 """)
 
-
-prices = client.execute(
-    getPricesQuery)["getAllPrices"]
-
-countryVersions = client.execute(
-    getCountryVersions)["getAllCountryVersions"]
-
-categories = client.execute(
-    getCategoriesQuery)["getAllCategories"]
-
-dealers = client.execute(
-    getDealersQuery)["getAllDealers"]
-
-colors = client.execute(
-    getColors)["getAllColors"]
-
-bodyStyles = client.execute(
-    getBodyStyles)["getAllBodyStyles"]
-
-driveTrains = client.execute(
-    getDriveTrains)["getAllDriveTrains"]
-
 models = client.execute(
     getModels)["getAllModels"]
-
-features = client.execute(
-    getFeatures)["getAllFeatures"]
-
-fuelTypes = client.execute(
-    getFuelTypes)["getAllFuelTypes"]
-
-
-priceMaxIndex = len(prices) - 1
-contryVersionMaxIndex = len(countryVersions)-1
-categoryMaxIndex = len(categories)-1
-dealerMaxIndex = len(dealers)-1
-colorMaxIndex = len(colors)-1
-bodyStyleMaxIndex = len(bodyStyles)-1
-driveTrainMaxIndex = len(driveTrains)-1
-modelMaxIndex = len(driveTrains)-1
-featureMaxIndex = len(features)-1
-fuelTypeMaxIndex = len(fuelTypes)-1
 
 
 for i in range(1):
@@ -247,54 +87,17 @@ for i in range(1):
     feature = features[featureIdx]
     fuelType = fuelTypes[fuelTypeIdx]
 
-    carParams = {
+    modelParams = {
         "data": {
-            "year": random.randint(2008, 2021),
-            "description": "pruebas",
-            "mileage": 1234,
-            "curboPrice": random.randint(5000, 150000),
-            "mpg": random.randint(0, 157000),
-            "mpgCity": random.randint(0, 50),
-            "mpgHgw": random.randint(0, 40),
-            "fuelCapacity": random.randint(4, 12),
-            "keys": random.randint(1, 3),
-            "vinNumber": "1234567",
-            "cylinders": random.randint(2, 4),
-            "torque": 0,
-            "torqueRpm": 0,
-            "frontLegRoom": 0,
-            "frontHeadRoom": 0,
-            "backLegRoom": 0,
-            "backHeadRoom": 0,
-            "engineDisplacement": 0,
-            "cargoCapacity": 0,
-            "lwh": "lwh",
-            "seats": random.randint(2, 7),
-            "doors": random.randint(2, 5),
-            "price": price["id"],
-            "countryVersion": cv["id"],
-            "categories": [category["id"]],
-            "dealer": dealer["id"],
-            "curboSpot": dealer["id"],
-            "interiorColor": color["id"],
-            "exteriorColor": color["id"],
-            "bodyStyle": bodyStyle["id"],
-            "driveTrain": driveTrain["id"],
-            "brand": model["brand"]["id"],
-            "carModel": model["id"],
-            "mainPicture": "https://cnet4.cbsistatic.com/img/UJ3mxFRgZCL_5PyM5iJSM-p0WWc=/2019/07/17/e6640571-f94c-47d6-b026-a69dec844b29/toyota-corolla-2020.jpg",
-            "pictures": [],
-            "certification": "5fd0f80de8d6560076c3232a",
-            "features": [feature["id"]],
-            "fuelType": fuelType["id"],
-            "location": dealer["id"]
+            "name": "",
+            "slug": "pruebas",
+            "visible": False,
         }
     }
 
-    categoryResult = client.execute(
-        createCarMutation, variable_values=carParams)
-
-    print(categoryResult)
-
+    modelResult = client.execute(
+        createModelMutation, variable_values=modelParams)
+        
+    print(modelResult)
 
 print("OK")
