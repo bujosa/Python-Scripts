@@ -10,8 +10,8 @@ def slugGenerator(data):
     data = data.lower().replace(" ","-")
     return data
 
-for number in range(1992,2022):
-  with open('${number}.csv') as csv_file:
+for number in range(1992,2023):
+  with open(f'{number}.csv') as csv_file:
       csv_reader = csv.reader(csv_file, delimiter=',')
       line_count = 0  
       line_count_two = 0
@@ -33,7 +33,7 @@ for number in range(1992,2022):
 # headers = {"Authorization": "Bearer {token}".format(token=api_token)}
 
 _transport = RequestsHTTPTransport(
-    url='http://localhost:4000/graphql',
+    url='http://localhost:1337/graphql',
     use_json=True,
     # headers=headers
 )
