@@ -9,6 +9,9 @@ import csv
 def slugGenerator(data):
     data = data.lower().replace(" ","-")
     data = data.replace("&","and")
+    data = data.replace("(","")
+    data = data.replace(")","")
+    data = data.replace("/","")
     return data
 
 make = {} 
@@ -29,8 +32,7 @@ for number in range(1992,2022):
 # headers = {"Authorization": "Bearer {token}".format(token=api_token)}
 
 _transport = RequestsHTTPTransport(
-    # url='https://api-staging.curbo.co/graphql',
-    url = 'http://localhost:1337/graphql',
+    url='url here',
     use_json=True,
     # headers=headers
 )
@@ -45,20 +47,6 @@ getMakes = gql("""
     makes{
       id
       name
-    }
-  }
-""")
-
-getModels = gql("""
-  query{
-      models{
-      slug
-      id
-      name
-      make{
-        id
-        name
-      }
     }
   }
 """)
@@ -84,8 +72,30 @@ createModelMutation = gql("""
   }
 """)
 
-models = client.execute(
-    getModels)["models"]
+models = []
+
+for i in 0,300,600,900,1200:
+  getModels = gql("""
+    query($data: Int!){
+        models(start: $data){
+        slug
+        id
+        name
+        make{
+          id
+          name
+        }
+      }
+    }
+  """)
+
+  params = {
+    "data": i
+  }
+
+  models += client.execute(
+      getModels, variable_values=params)["models"]
+
 
 for data in models:
       key = data["slug"]
@@ -98,6 +108,8 @@ for data in makes:
       key = slugGenerator(data["name"])
       if make.get(key) == None:
                 make[key] = data["id"]
+
+print(len(models))
 
 for key in model:
 
