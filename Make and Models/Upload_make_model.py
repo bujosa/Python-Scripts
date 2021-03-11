@@ -17,14 +17,17 @@ def slugGenerator(data):
 make = {} 
 model = {}
 model_validation = {}
+make_validation = {}
 
 for number in range(1992,2022):
   with open(f'us-car-models-data/{number}.csv') as csv_file:
-      csv_reader = csv.reader(csv_file, delimiter=',')
-      for row in csv_reader:
-          if row[1] != "make":
-            if model.get(row[2]) == None:
-                model[row[2]] = row[1]                 
+    csv_reader = csv.reader(csv_file, delimiter=',')
+    for row in csv_reader:
+      if row[1] != "make":
+        if model.get(row[2]) == None:
+          model[row[2]] = row[1]
+        if make.get(row[1]) == None:
+          make[row[1]] = row[1]                
 
 # SECOND PART
 
@@ -32,7 +35,7 @@ for number in range(1992,2022):
 # headers = {"Authorization": "Bearer {token}".format(token=api_token)}
 
 _transport = RequestsHTTPTransport(
-    url='url here',
+    url='https://app.curbo.co/graphql',
     use_json=True,
     # headers=headers
 )
@@ -98,45 +101,68 @@ for i in 0,300,600,900,1200:
 
 
 for data in models:
-      key = data["slug"]
-      if model_validation.get(key) == None:
-                model_validation[key] = True
+  key = data["slug"]
+  if model_validation.get(key) == None:
+    model_validation[key] = True
 
 makes = client.execute(getMakes)["makes"]
 
 for data in makes:
-      key = slugGenerator(data["name"])
-      if make.get(key) == None:
-                make[key] = data["id"]
+  key = slugGenerator(data["name"])
+  if make.get(key) == None:
+    make[key] = data["id"]
+    make_validation[key] = True
 
-print(len(models))
 
-for key in model:
+print(len(makes))
 
+# for key in model:
+
+#     print(key)
+
+#     slug = slugGenerator(key)
+
+#     validation = True
+
+#     if model_validation.get(slug) != None:
+#           validation = False
+
+#     id_make = make[slugGenerator(model[key])]
+    
+#     if validation:
+#       Params = {
+#           "data": {
+#             "data": {
+#                 "name": key,
+#                 "make": id_make,
+#                 "slug": slug,
+#                 "visible": False
+#             }
+#           }
+#         }
+#       Result = client.execute(
+#             createModelMutation, variable_values=Params)   
+#       print(Result)   
+
+for key in make:
     print(key)
-
     slug = slugGenerator(key)
-
     validation = True
 
-    if model_validation.get(slug) != None:
+    if make_validation.get(slug) != None:
           validation = False
 
-    id_make = make[slugGenerator(model[key])]
-    
     if validation:
       Params = {
           "data": {
             "data": {
                 "name": key,
-                "make": id_make,
                 "slug": slug,
                 "visible": False
             }
           }
         }
-      Result = client.execute(
-            createModelMutation, variable_values=Params)   
-      print(Result)   
+      Result = client.execute(createMakeMutation, variable_values=Params)   
+      print(Result)  
 
 print("OK")
